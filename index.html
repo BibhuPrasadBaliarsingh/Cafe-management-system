@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="">
+    
+    <div class="container">
+        <header>
+            <h1>Your Shopping Cart</h1>
+            <div class="shopping">
+                <img src="image/shopping.svg">
+                <span class="quantity">0</span>
+            </div>
+            <button class="home-button">Home</button>
+            <button class="logout-button">Logout</button>
+        </header>
+
+        <div class="list">
+            <!-- Items will be dynamically added here -->
+        </div>
+        
+    </div>
+    <div class="card">
+        <h1>Card</h1>
+        <ul class="listCard">
+        </ul>
+        <div class="checkOut">
+            <div class="total">0</div>
+            <div class="closeShopping">Close</div>
+        </div>
+        <div class="payment-options">
+            <label><input type="checkbox" name="payment-option" value="cash"> Cash</label>
+            <label><input type="checkbox" name="payment-option" value="card"> Card</label>
+            <label><input type="checkbox" name="payment-option" value="upi"> UPI</label>
+        </div>
+    </div>
+
+    
+
+    <script>
+        let openShopping = document.querySelector('.shopping');
+        let closeShopping = document.querySelector('.closeShopping');
+        let list = document.querySelector('.list');
+        let listCard = document.querySelector('.listCard');
+        let body = document.querySelector('body');
+        let total = document.querySelector('.total');
+        let quantity = document.querySelector('.quantity');
+
+        openShopping.addEventListener('click', () => {
+            body.classList.add('active');
+        });
+        closeShopping.addEventListener('click', () => {
+            body.classList.remove('active');
+        });
+
+        let products = [
+            {
+                id: 1,
+                name: 'PRODUCT 1',
+                image: '1.PNG',
+                price: 120
+            },
+            {
+                id: 2,
+                name: 'PRODUCT 2',
+                image: '2.PNG',
+                price: 150
+            },
+            {
+                id: 3,
+                name: 'PRODUCT 3',
+                image: '3.PNG',
+                price: 220
+            },
+            {
+                id: 4,
+                name: 'PRODUCT 4',
+                image: '4.PNG',
+                price: 123
+            },
+            {
+                id: 5,
+                name: 'PRODUCT 5',
+                image: '5.PNG',
+                price: 320
+            },
+            {
+                id: 6,
+                name: 'PRODUCT 6',
+                image: '6.PNG',
+                price: 120
+            }
+        ];
+
+        let listCards = [];
+
+        function initApp(){
+            products.forEach((value, key) =>{
+                let newDiv = document.createElement('div');
+                newDiv.classList.add('item');
+                newDiv.innerHTML = `
+                    <img src="image/${value.image}">
+                    <div class="title">${value.name}</div>
+                    <div class="price">${value.price.toLocaleString()}</div>
+                    <button onclick="addToCard(${key})">Add To Card</button>`;
+                list.appendChild(newDiv);
+            });
+        }
+
+        function addToCard(key) {
+            if (listCards[key] == null) {
+                listCards[key] = JSON.parse(JSON.stringify(products[key]));
+                listCards[key].quantity = 1;
+                animateAddToCart();
+            }
+            reloadCard();
+        }
+
+        function animateAddToCart() {
+            document.querySelector('.shopping img').classList.add('animate-cart');
+            setTimeout(() => {
+                document.querySelector('.shopping img').classList.remove('animate-cart');
+            }, 1000);
+        }
+
+        function reloadCard() {
+            listCard.innerHTML = '';
+            let count = 0;
+            let totalPrice = 0;
+            listCards.forEach((value, key) => {
+                if (value != null) {
+                    let newDiv = document.createElement('li');
+                    totalPrice += value.price * value.quantity;
+                    count += value.quantity;
+                    newDiv.innerHTML = `
+                        <div><img src="image/${value.image}"/></div>
+                        <div>${value.name}</div>
+                        <div>Price: ${(value.price * value.quantity).toLocaleString()}</div>
+                        <div>
+                            <button onclick="changeQuantity(${key}, ${value.quantity - 1})">-</button>
+                            <div class="count">${value.quantity}</div>
+                            <button onclick="changeQuantity(${key}, ${value.quantity + 1})">+</button>
+                        </div>`;
+                    listCard.appendChild(newDiv);
+                }
+            });
+            total.innerText = 'Total: ' + totalPrice.toLocaleString();
+            quantity.innerText = count;
+        }
+
+        function changeQuantity(key, quantity){
+            if(quantity <= 0){
+                delete listCards[key];
+            }else{
+                listCards[key].quantity = quantity;
+            }
+            reloadCard();
+        }
+
+        total.addEventListener('click', () => {
+    generateBill();
+});
+
+function generateBill() {
+    const restaurantName = "GIFT Cafe";
+    const paymentOptions = document.querySelectorAll('input[name="payment-option"]:checked');
+    if (paymentOptions.length === 0) {
+        alert("Please select at least one payment option.");
+        return;
+    }
+    const tableNumber = getRandomTableNumber();
+    let paymentMethods = [];
+    paymentOptions.forEach(option => {
+        paymentMethods.push(option.value);
+    });
+
+    let billContent = `
+        <h2>${restaurantName}</h2>
+        <h3>Table Number: ${tableNumber}</h3>
+        <h3>Payment Options: ${paymentMethods.join(', ')}</h3>
+        <h3>Items:</h3>
+        <ul>`;
+    listCards.forEach((item) => {
+        if (item) {
+            billContent += `
+                <li>
+                    <span>${item.name}</span>
+                    <span>${item.quantity} x ${item.price.toLocaleString()} = ${(item.quantity * item.price).toLocaleString()}</span>
+                </li>`;
+        }
+    });
+    let totalAmount = total.innerText.split(': ')[1];
+    billContent += `</ul>
+        <h3>Total: ${totalAmount}</h3>`;
+    const billWindow = window.open('', '_blank');
+    billWindow.document.open();
+    billWindow.document.write(`
+        <html>
+            <head>
+                <title>Bill</title>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                    }
+                    h2, h3 {
+                        margin: 5px 0;
+                    }
+                    ul {
+                        list-style-type: none;
+                        padding: 0;
+                    }
+                    li {
+                        margin-bottom: 5px;
+                    }
+                    span {
+                        display: inline-block;
+                        width: 50%;
+                    }
+                </style>
+            </head>
+            <body>
+                ${billContent}
+            </body>
+        </html>`);
+    billWindow.document.close();
+}
+
+        function getRandomTableNumber() {
+            return Math.floor(Math.random() * 50) + 1;
+        }
+
+        document.querySelector('.logout-button').addEventListener('click', () => {
+            window.location.href = 'Login.html';
+        });
+
+        document.querySelector('.home-button').addEventListener('click', () => {
+            window.location.href = 'home.html';
+        });
+
+        initApp();
+    </script>
+</body>
+</html>

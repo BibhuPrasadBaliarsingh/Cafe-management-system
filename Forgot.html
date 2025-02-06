@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Forgot Password</title>
+    <style>
+        body {
+            background-color: #f2f2f2;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            width: 300px;
+            background-color: #fff;
+            padding: 20px;
+            margin: 50px auto;
+            border: 1px solid #ddd;
+            box-shadow: 0px 0px 10px 1px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        a {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Forgot your password?</h1>
+        <form id="resetForm">
+            <label for="email">Username:</label>
+            <input type="text" id="email" name="email">
+            <input type="submit" value="Reset Password">
+        </form>
+        <div id="passwordDisplay"></div>
+    </div>
+
+    <script>
+        // Add an event listener to the form submission
+        document.getElementById("resetForm").addEventListener("submit", function(event) {
+            event.preventDefault(); // Prevent form submission
+            
+            // Get the entered email/username
+            var email = document.getElementById("email").value;
+            
+            // Retrieve the password from local storage
+            var password = localStorage.getItem(email);
+            
+            // Display the password or a message indicating that it was not found
+            if (password) {
+                document.getElementById("passwordDisplay").innerHTML = "Your password is: " + password;
+            } else {
+                document.getElementById("passwordDisplay").innerHTML = "Password not found.";
+            }
+        });
+    </script>
+</body>
+</html>
